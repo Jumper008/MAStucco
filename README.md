@@ -1,0 +1,2 @@
+# MAStucco
+The web application hereby described has the sole purpose of supporting the everyday operational tasks of The Client’s organization, as well as serving as an organizational tool for the administrative party within such organization. The development of the website intends to serve as a tool, that when used, increases the efficiency of the operational tasks and reduces money loses within the organization.
