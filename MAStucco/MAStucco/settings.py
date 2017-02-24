@@ -25,6 +25,8 @@ SECRET_KEY = 'pn3j2$&8883(5o&@9o+2-=_$5tt==^5_ll8um@9jd)@c=f4)dz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+LOGIN_URL = 'http://127.0.0.1:8080/login/'
+
 ALLOWED_HOSTS = []
 
 
