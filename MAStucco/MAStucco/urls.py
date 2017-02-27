@@ -19,6 +19,10 @@ from WAMAStucco import views
 
 urlpatterns = [
     url(r'^$', views.home_view, name='home_page'),
-    url(r'^login/$', views.login_view),
+    url(r'^workorders/$', views.workorders_view, name='workorders_page'),
+    url(r'^reports/$', views.reports_view, name='reports_page'),
+    url(r'^workeradministration/$', views.workeradministrarion_view, name='workeradministration_page'),
+    url(r'^login/$', views.login_view, name='login_page'),
+    url(r'^logout/$', views.logout_view),
     url(r'^admin/', admin.site.urls),
 ]

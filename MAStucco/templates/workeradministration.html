@@ -14,10 +14,10 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="http://127.0.0.1:8000/">Home</a></li>
+            <li><a href="http://127.0.0.1:8000/">Home</a></li>
             <li><a href="http://127.0.0.1:8000/workorders/">Work Orders</a></li>
             <li><a href="http://127.0.0.1:8000/reports/">Reports</a></li>
-            <li><a href="http://127.0.0.1:8000/workeradministration/">Worker Administration</a></li>
+            <li class="active"><a href="http://127.0.0.1:8000/workeradministration/">Worker Administration</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li class="navbar-text">Welcome, {{ user.username }}!</li>
@@ -28,5 +28,4 @@
     </nav>
 {% endblock %}
 {% block content %}
-
 {% endblock %}
