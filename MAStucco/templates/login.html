@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
+    {% if next == '/account/' %}
+        <p>MAStucco.</p>
+    {% elif next %}
+        <p>Only members are allowed to perform this action. Either login or register.</p>
+    {% endif %}
+    <h1>MAStucco</h1>
+    <p>Login with your credentials.</p>
+    <p><b>{{ error }}</b></p>
+    {% if form.errors%}
+        <p>Your password or username is incorrect.</p>
+    {% endif %}
 
-</body>
-</html>
+    <form action='' method='post'>
+        {% csrf_token %}
+        <label for='username'>Username :</label> <br/>
+        <input type='text' name='username' id='username'> <br/>
+        <label for='password'>Password :</label><br/>
+        <input type='password' name='password' id='password'> <br/>
+        <input type='submit' value='Log in'>
+    </form>
+    <br/>
+{% endblock %}
