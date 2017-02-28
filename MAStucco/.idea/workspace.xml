@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b6f20149-6d9b-4b4b-a0d1-abc014cba072" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/templates/reports.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/templates/workeradministration.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db.sqlite3" afterPath="$PROJECT_DIR$/db.sqlite3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MAStucco/urls.py" afterPath="$PROJECT_DIR$/MAStucco/urls.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/WAMAStucco/static/css/navbar-fixed-top.css" afterPath="$PROJECT_DIR$/WAMAStucco/static/css/navbar-fixed-top.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/WAMAStucco/views.py" afterPath="$PROJECT_DIR$/WAMAStucco/views.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/home.html" afterPath="$PROJECT_DIR$/templates/home.html" />
-    </list>
+    <list default="true" id="b6f20149-6d9b-4b4b-a0d1-abc014cba072" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
