@@ -6,29 +6,27 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import auth
 
-
 @login_required()
 def home_view(request):
     return render(request, 'home.html', {'page_title': 'Home'})
 
-
+@login_required()
 def workorders_view(request):
     return render(request, 'workorders.html', {'page_title': 'Work Orders'})
 
-
+@login_required()
 def reports_view(request):
     return render(request, 'reports.html', {'page_title': 'Reports'})
 
-
+@login_required()
 def workeradministrarion_view(request):
     return render(request, 'workeradministration.html', {'page_title': 'Worker Administration'})
-
 
 def login_view(request):
     if request.method == 'POST':
         # We get POST arguments.
-        username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
+        username = request.POST.get('inputUsername', '')
+        password = request.POST.get('inputPassword', '')
         nextTo = request.POST.get('next', reverse('home_page'))
         if nextTo == 'None':
             nextTo = None
@@ -43,7 +41,6 @@ def login_view(request):
         nextTo = request.GET.get('next', None)
 
     return render(request, 'login.html', {'page_title': 'Login', 'next': nextTo})
-
 
 def logout_view(request):
     logout(request)
