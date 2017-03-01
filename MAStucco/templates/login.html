@@ -1,19 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
-     <h1>MAStucco</h1>
-     <p>Login with your credentials.</p>
-     <p><b>{{ error }}</b></p>
-     {% if form.errors%}
-         <p>Your password or username is incorrect.</p>
-     {% endif %}
 
-    <form action='' method='post'>
-         {% csrf_token %}
-         <label for='username'>Username :</label> <br/>
-         <input type='text' name='username' id='username'> <br/>
-         <label for='password'>Password :</label><br/>
-         <input type='password' name='password' id='password'> <br/>
-         <input type='submit' value='Log in'>
-     </form>
-     <br/>
+    <div class="container" id="LoginContainer">
+        <div class="centered text-center">
+            <h1>MAStucco</h1>
+             <p>Login with your credentials.</p>
+             <p><b>{{ error }}</b></p>
+             {% if form.errors%}
+                 <p>Your password or username is incorrect.</p>
+             {% endif %}
+
+            <form action='' method='post'>
+                 {% csrf_token %}
+                 <label for='username'>Username :</label> <br/>
+                 <input type='text' name='username' id='username'> <br/>
+                 <label for='password'>Password :</label><br/>
+                 <input type='password' name='password' id='password'> <br/>
+                <br/>
+                 <input type='submit' value='Log in'>
+             </form>
+            <br/>
+        </div>
+    </div>
+
  {% endblock %}
