@@ -5,10 +5,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import auth
+from models import WorkOrder, Job, PartOrder
 
 @login_required()
 def home_view(request):
-    return render(request, 'home.html', {'page_title': 'Home'})
+    pending_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.ADDED)
+    return render(request, 'home.html', {'page_title': 'Home', 'work_orders': pending_work_orders})
 
 @login_required()
 def workorders_view(request):
