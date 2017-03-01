@@ -109,7 +109,10 @@ class PartOrderForm(ModelForm):
 
 class Job(models.Model):
 
-    lot = models.BigIntegerField()
+    lot = models.CharField\
+        (
+            max_length=15
+        )
     address = models.CharField\
         (
             max_length=256
