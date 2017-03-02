@@ -1,11 +1,12 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
 from django.contrib import auth
-from models import WorkOrder, Job, PartOrder
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from .models import WorkOrder, Job, PartOrder
+
 
 @login_required()
 def home_view(request):
@@ -18,7 +19,9 @@ def workorders_view(request):
 
 @login_required()
 def reports_view(request):
-    return render(request, 'reports.html', {'page_title': 'Reports'})
+    uncashed_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.FINISHED, is_cashed= False)
+    cashed_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.FINISHED, is_cashed= True)
+    return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': uncashed_work_orders, 'cashed_work_orders':  cashed_work_orders})
 
 @login_required()
 def workeradministrarion_view(request):
