@@ -9,7 +9,10 @@ from models import WorkOrder, Job, PartOrder
 
 @login_required()
 def home_view(request):
-    pending_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.ADDED)
+    if request.user.is_staff:
+        pending_work_orders = WorkOrder.objects.all().exclude(work_phase=WorkOrder.FINISHED)
+    else:
+        pending_work_orders = WorkOrder.objects.all().filter(assigned_worker=request.user)
     return render(request, 'home.html', {'page_title': 'Home', 'work_orders': pending_work_orders})
 
 @login_required()
