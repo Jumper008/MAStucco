@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% load filters %}
+{% load static %}
+
 {% block navbar %}
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -27,5 +30,62 @@
       </div>
     </nav>
 {% endblock %}
+
 {% block content %}
+        <br/>
+        <div class="container-fluid" id="uncashed_jobs">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="panel panel-default">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Uncashed Work Orders</h2>
+                        </div>
+                        <!-- List group -->
+                        <div class="list-group">
+                            {% for work_order in uncashed_work_orders %}
+                                <a href="#" class="list-group-item">
+                                    <h4 class="list-group-item-heading">Customer: {{ work_order.customer }}</h4>
+                                    <p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
+                                    <p class="list-group-item-text"><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }}
+                                        {{ work_order.assigned_worker.last_name }}</p>
+                                    <p class="list-group-item-text"><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid" id="cashed_jobs" style="display: none;">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="panel panel-default">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading">
+                            <h2 class="panel-title">Cashed Work Orders</h2>
+                        </div>
+                        <!-- List group -->
+                        <div class="list-group">
+                            {% for work_order in cashed_work_orders %}
+                                <a href="#" class="list-group-item">
+                                    <h4 class="list-group-item-heading">Customer: {{ work_order.customer }}</h4>
+                                    <p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
+                                    <p class="list-group-item-text"><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }}
+                                        {{ work_order.assigned_worker.last_name }}</p>
+                                    <p class="list-group-item-text"><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" id="chashedJ" type="button">Check cashed</button>
+        <button class="btn btn-lg btn-primary btn-block" id="unchashedJ" type="button">Check uncashed</button>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'js/reports.js' %}"></script>
 {% endblock %}
