@@ -34,14 +34,14 @@ def reports_info(request, id):
         return HttpResponseRedirect(reverse('reports_page'))
 
     pOrder = PartOrder.objects.all().filter(work_order=wOrder)
-    job = Job.objects.all().filter(work_order=wOrder)
+    #job = Job.objects.all().filter(work_order=wOrder)
 
     if not request.user.is_staff:
         return render(request, 'workorder_worker.html', {'page_title': 'Work Order', 'wOrder' : wOrder,
-                                                         'pOrder' : pOrder, 'job' : job})
+                                                         'pOrder' : pOrder})
     else:
         return render(request, 'workorder_admin.html', {'page_title': 'Work Order', 'wOrder' : wOrder,
-                                                         'pOrder' : pOrder, 'job' : job})
+                                                         'pOrder' : pOrder})
 
 @login_required()
 def workeradministrarion_view(request):
