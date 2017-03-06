@@ -2,80 +2,46 @@
 {% load static %}
 {% load filters %}
 
+{% block custom_css %}
+    <link href="{% static 'css/workorder.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
     <br/>
-    <div class="container-fluid" id="report_info">
-        <div class="row">
+    <div class="card" id="report_info">
+        <div class="card-block text-nowrap">
             <div class="col-md-8">
                 <div class="panel panel-default">
-                    <table class="table">
-                        <tr>
-                            <th colspan="3">Work Order Information</th>
-                        </tr>
-                        <tr></tr>
-                        <tbody>
-                            <tr>
-                                <td><p class="list-group-item-text"><strong>Customer:</strong>
-                                    {{ work_order.customer }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }} {{ work_order.assigned_worker.last_name }}</p></td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><p class="list-group-item-text"><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Order By:</strong> {{ work_order.order_by }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Model:</strong> {{ work_order.model }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Notes:</strong> {{ work_order.notes }}</p></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class = "container-fluid">
+                        <h1>Work Order Information</h1>
+                            <p><strong>Customer:</strong>
+                                {{ work_order.customer }}</p>
+                            <p><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
+                            <p><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }} {{ work_order.assigned_worker.last_name }}</p>
+                            <p><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p>
+                            <p><strong>Order By:</strong> {{ work_order.order_by }}</p>
+                            <p><strong>Model:</strong> {{ work_order.model }}</p>
+                            <p><strong>Notes:</strong> {{ work_order.notes }}</p>
+                        <hr>
+                        <h1 class="display-4">Part Order Information</h1>
+                           {% for part_order in part_orders %}
+                                <p><strong>Quantity:</strong> {{ part_order.quantity }}</p>
+                                <p><strong>Part:</strong> {{ part_order.part }}</p>
+                                <p><strong>Measure:</strong> {{ part_order.measure }}</p>
+                                <br>
+                           {% endfor %}
+                        <hr>
+                        <h1 class="display-4">Job Information</h1>
+                            <p><strong>Lot:</strong> {{ work_order.job.lot }}</p>
+                            <p><strong>Address:</strong> {{ work_order.job.address }}</p>
+                            <p><strong>Subdivision:</strong> {{ work_order.job.subdivision }}</p>
+                        <br>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-8">
-                <div class="panel panel-default">
-                    <table class="table">
-                        <tr>
-                            <th colspan="3">Part Order Information</th>
-                        </tr>
-                        <tr></tr>
-                        <tbody>
-                            {% for part_order in part_orders %}
-                                <tr>
-                                    <td><p class="list-group-item-text"><strong>Quantity:</strong> {{ part_order.quantity }}</p></td>
-                                    <td><p class="list-group-item-text"><strong>Part:</strong> {{ part_order.part }}</p></td>
-                                    <td><p class="list-group-item-text"><strong>Measure:</strong> {{ part_order.measure }}</p></td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-8">
-                <div class="panel panel-default">
-                    <table class="table">
-                        <tr>
-                            <th colspan="3">Job Information</th>
-                        </tr>
-                        <tr></tr>
-                        <tbody>
-                            <tr>
-                                <td><p class="list-group-item-text"><strong>Lot:</strong> {{ work_order.job.lot }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Address:</strong> {{ work_order.job.address }}</p></td>
-                                <td><p class="list-group-item-text"><strong>Subdivision:</strong> {{ work_order.job.subdivision }}</p></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+        <br>
         <div class="row">
             <div class="col-md-4">
                 {% if user.is_staff %}
