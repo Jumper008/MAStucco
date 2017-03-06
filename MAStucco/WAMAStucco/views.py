@@ -30,22 +30,30 @@ def reports_view(request):
     cashed_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.FINISHED, is_cashed= True)
     return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': uncashed_work_orders, 'cashed_work_orders':  cashed_work_orders})
 
-def reports_info(request, id):
-    # Validate that the specified auction exists and if so, get it.
+@login_required()
+def workorder_view(request, id):
+    # Validate that the specified work order exists and if so, get it.
     if WorkOrder.exists(id):
-        wOrder = WorkOrder.getByID(id)
+        work_order = WorkOrder.getByID(id)
+    # If it does not exist, then redirect.
     else:
         return HttpResponseRedirect(reverse('reports_page'))
 
-    pOrder = PartOrder.objects.all().filter(work_order=wOrder)
-    #job = Job.objects.all().filter(work_order=wOrder)
+    part_orders = PartOrder.objects.all().filter(work_order=work_order)
 
-    if not request.user.is_staff:
-        return render(request, 'workorder_worker.html', {'page_title': 'Work Order', 'wOrder' : wOrder,
-                                                         'pOrder' : pOrder})
-    else:
-        return render(request, 'workorder_admin.html', {'page_title': 'Work Order', 'wOrder' : wOrder,
-                                                         'pOrder' : pOrder})
+    # If this is a POST request then one of the available buttons were used and we need to find out which one was used
+    # to know which action to perform.
+    if request.method == 'POST':
+        if request.user.is_staff:
+            work_order.is_cashed = True
+            work_order.save()
+        else:
+            work_order.is_taken = True
+            work_order.assigned_worker = request.user
+            work_order.save()
+    # Then we'll display all the information of the requested work order.
+    return render(request, 'workorder.html', {'page_title': 'Work Order', 'work_order': work_order,
+                                              'part_orders': part_orders})
 
 @login_required()
 @user_passes_test(user_check)
