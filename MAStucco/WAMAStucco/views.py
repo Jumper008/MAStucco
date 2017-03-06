@@ -7,6 +7,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .models import WorkOrder, Job, PartOrder
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render
+import re
+from django.db.models import Q
 
 def user_check(user):
     return user.is_staff
@@ -26,9 +30,87 @@ def workorders_view(request):
 @login_required()
 @user_passes_test(user_check)
 def reports_view(request):
-    uncashed_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.FINISHED, is_cashed= False)
-    cashed_work_orders = WorkOrder.objects.all().filter(work_phase=WorkOrder.FINISHED, is_cashed= True)
-    return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': uncashed_work_orders, 'cashed_work_orders':  cashed_work_orders})
+    uncashed_work_orders = WorkOrder.objects.all().filter(is_cashed= False)#work_phase=WorkOrder.FINISHED, is_cashed= False)
+    if request.method == 'POST' and request.POST['search_title'].strip():
+        query_string = request.POST['search_title']
+        category_query1 = get_query(query_string, ['customer'])
+        found_category = WorkOrder.objects.all().filter(is_cashed= False).filter(category_query1)
+        if not found_category:
+            return render(request, 'reports.html', {'page_title': 'Reports', 'is_search_empty': True})
+        else:
+            return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': found_category})
+
+    else:
+        found_category = WorkOrder.objects.all().filter(is_cashed=False)
+        paginator = Paginator(found_category, 5)  # Show 25 contacts per page
+        page = request.GET.get('page')
+        try:
+            found_category1 = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            found_category1 = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            found_category1 = paginator.page(paginator.num_pages)
+        return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': found_category1})
+
+
+
+
+
+def reports_cashed_view(request):
+    cashed_work_orders = WorkOrder.objects.all().filter(is_cashed= True)#work_phase=WorkOrder.FINISHED, is_cashed= True)
+    if request.method == 'POST' and request.POST['search_title'].strip():
+        query_string = request.POST['search_title']
+        category_query1 = get_query(query_string, ['customer'])
+        found_category = WorkOrder.objects.all().filter(is_cashed= True).filter(category_query1)
+        if not found_category:
+            return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'is_search_empty': True})
+        else:
+            return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'cashed_work_orders': found_category})
+
+    else:
+        found_category = WorkOrder.objects.all().filter(is_cashed=True)
+        paginator = Paginator(found_category, 5)  # Show 25 contacts per page
+        page = request.GET.get('page')
+        try:
+            found_category1 = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            found_category1 = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            found_category1 = paginator.page(paginator.num_pages)
+        return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'cashed_work_orders': found_category1})
+
+
+def normalize_query(query_string,
+                    findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
+                    normspace=re.compile(r'\s{2,}').sub):
+    # Splits the query string in individual keywords, getting rid of unnecessary spaces and grouping quoted words
+    #   together.
+    return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)]
+
+def get_query(query_string, search_fields):
+    # Returns a query, that is a combination of Q objects. That combination aims to search keywords within a model by
+    #   testing the given search fields.
+    query = None  # Query to search for every search term
+    terms = normalize_query(query_string)
+    for term in terms:
+        or_query = None  # Query to search for a given term in each field
+        for field_name in search_fields:
+            q = Q(**{"%s__icontains" % field_name: term})
+            if or_query is None:
+                or_query = q
+            else:
+                or_query = or_query | q
+        if query is None:
+            query = or_query
+        else:
+            query = query & or_query
+    return query
+
+
 
 def reports_info(request, id):
     # Validate that the specified auction exists and if so, get it.
