@@ -1,23 +1,7 @@
-/**
- * Created by User on 01/03/2017.
- */
-
 $("#cashedJ").click(function() {
-   $('#uncashed_jobs').css("display", "none");
-   $('#cashed_jobs').css("display", "block");
+   window.location = "http://127.0.0.1:8000/reports_cashed";
 });
 
 $("#uncashedJ").click(function() {
-   $('#uncashed_jobs').css("display", "block");
-   $('#cashed_jobs').css("display", "none");
-});
-
-$("#cashedJ2").click(function() {
-   $('#uncashed_jobs').css("display", "none");
-   $('#cashed_jobs').css("display", "block");
-});
-
-$("#uncashedJ2").click(function() {
-   $('#uncashed_jobs').css("display", "block");
-   $('#cashed_jobs').css("display", "none");
+   window.location = "http://127.0.0.1:8000/reports";
 });
