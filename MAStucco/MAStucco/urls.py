@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^workorders/$', views.workorders_view, name='workorders_page'),
     url(r'^reports/$', views.reports_view, name='reports_page'),
     url(r'^reports_cashed/$', views.reports_cashed_view, name='reports_cashed_page'),
-    url(r'^reports/info/(?P<id>\d+)$', views.reports_info),
+    url(r'^reports/info/(?P<id>\d+)$', views.workorder_view),
     url(r'^workeradministration/$', views.workeradministrarion_view, name='workeradministration_page'),
     url(r'^login/$', views.login_view, name='login_page'),
     url(r'^logout/$', views.logout_view),
