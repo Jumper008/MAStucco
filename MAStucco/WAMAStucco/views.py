@@ -15,6 +15,9 @@ from django.db.models import Q
 def user_check(user):
     return user.is_staff
 
+def empty_view(request):
+    return HttpResponseRedirect(reverse('home_page'))
+
 @login_required()
 def home_view(request):
     if request.user.is_staff:
@@ -30,18 +33,18 @@ def workorders_view(request):
 @login_required()
 @user_passes_test(user_check)
 def reports_view(request):
-    uncashed_work_orders = WorkOrder.objects.all().filter(is_cashed= False)#work_phase=WorkOrder.FINISHED, is_cashed= False)
+    uncashed_work_orders = WorkOrder.objects.all().filter(is_cashed= False, work_phase=WorkOrder.FINISHED)#work_phase=WorkOrder.FINISHED, is_cashed= False)
     if request.method == 'POST' and request.POST['search_title'].strip():
         query_string = request.POST['search_title']
         category_query1 = get_query(query_string, ['customer'])
-        found_category = WorkOrder.objects.all().filter(is_cashed= False).filter(category_query1)
+        found_category = WorkOrder.objects.all().filter(is_cashed= False,  work_phase=WorkOrder.FINISHED).filter(category_query1)
         if not found_category:
             return render(request, 'reports.html', {'page_title': 'Reports', 'is_search_empty': True})
         else:
             return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': found_category})
 
     else:
-        found_category = WorkOrder.objects.all().filter(is_cashed=False)
+        found_category = WorkOrder.objects.all().filter(is_cashed=False, work_phase=WorkOrder.FINISHED)
         paginator = Paginator(found_category, 5)  # Show 25 contacts per page
         page = request.GET.get('page')
         try:
@@ -59,18 +62,18 @@ def reports_view(request):
 
 
 def reports_cashed_view(request):
-    cashed_work_orders = WorkOrder.objects.all().filter(is_cashed= True)#work_phase=WorkOrder.FINISHED, is_cashed= True)
+    cashed_work_orders = WorkOrder.objects.all().filter(is_cashed=True,  work_phase=WorkOrder.FINISHED)#work_phase=WorkOrder.FINISHED, is_cashed= True)
     if request.method == 'POST' and request.POST['search_title'].strip():
         query_string = request.POST['search_title']
         category_query1 = get_query(query_string, ['customer'])
-        found_category = WorkOrder.objects.all().filter(is_cashed= True).filter(category_query1)
+        found_category = WorkOrder.objects.all().filter(is_cashed= True,  work_phase=WorkOrder.FINISHED).filter(category_query1)
         if not found_category:
             return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'is_search_empty': True})
         else:
             return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'cashed_work_orders': found_category})
 
     else:
-        found_category = WorkOrder.objects.all().filter(is_cashed=True)
+        found_category = WorkOrder.objects.all().filter(is_cashed=True,  work_phase=WorkOrder.FINISHED)
         paginator = Paginator(found_category, 5)  # Show 25 contacts per page
         page = request.GET.get('page')
         try:

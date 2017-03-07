@@ -4,10 +4,20 @@
 
 {% block content %}
         <br/>
+    <!--Search bar-->
     <form action='' method='post'>
         {% csrf_token %}
-        <input type='text' name="search_title" size="30"><input type='submit' value='Search'>
-    </form><hr>
+        <div class="col-lg-6">
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type='submit' value='Search'>Go!</button>
+              </span>
+                <input class="form-control" type='text' name="search_title" size="30" placeholder="Search for...">
+            </div>
+        </div>
+    </form>
+
+
         <!--<div class="container-fluid" id="uncashed_jobs">-->
             <div class="row-fluid" id="uncashed_jobs">
                 <div class="col-xs-12 col-sm-8" >
