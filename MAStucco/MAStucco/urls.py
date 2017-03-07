@@ -18,7 +18,9 @@ from django.contrib import admin
 from WAMAStucco import views
 
 urlpatterns = [
-    url(r'^$', views.home_view, name='home_page'),
+    url(r'^$', views.empty_view),
+    url(r'^home/$', views.home_view, name='home_page'),
+    url(r'^home/info/(?P<id>\d+)$', views.workorder_view),
     url(r'^workorders/$', views.workorders_view, name='workorders_page'),
     url(r'^reports/$', views.reports_view, name='reports_page'),
     url(r'^reports_cashed/$', views.reports_cashed_view, name='reports_cashed_page'),
