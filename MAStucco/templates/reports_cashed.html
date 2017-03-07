@@ -47,55 +47,57 @@
     </form>
 
         <!--<div class="container-fluid" id="cashed_jobs" style="display: none;">-->
-            <div class="row-fluid" id="cashed_jobs">
-                <div class="col-xs-12 col-md-8">
-                    <div class="panel panel-default">
-                        <!-- Default panel contents -->
-                        <div class="panel-heading">
-                            <h2 class="panel-title">Cashed Work Orders</h2>
-                        </div>
-                        <!-- List group -->
-                        <div class="list-group">
-                            {% for work_order in cashed_work_orders %}
-                                <a href="http://127.0.0.1:8000/reports/info/{{ work_order.id }}" class="list-group-item">
-                                    <h4 class="list-group-item-heading">Customer: {{ work_order.customer }}</h4>
-                                    <p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
-                                    <p class="list-group-item-text"><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }}
-                                        {{ work_order.assigned_worker.last_name }}</p>
-                                    <p class="list-group-item-text"><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p>
-                                </a>
-                            {% endfor %}
-                            {% if cashed_work_orders.has_other_pages %}
-                              <ul class="pagination">
-                                {% if cashed_work_orders.has_previous %}
-                                  <li><a href="?page={{ cashed_work_orders.previous_page_number }}">&laquo;</a></li>
-                                {% else %}
-                                  <li class="disabled"><span>&laquo;</span></li>
-                                {% endif %}
-                                {% for i in cashed_work_orders.paginator.page_range %}
-                                  {% if cashed_work_orders.number == i %}
-                                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-                                  {% else %}
-                                    <li><a href="?page={{ i }}">{{ i }}</a></li>
-                                  {% endif %}
-                                {% endfor %}
-                                {% if cashed_work_orders.has_next %}
-                                  <li><a href="?page={{ cashed_work_orders.next_page_number }}">&raquo;</a></li>
-                                {% else %}
-                                  <li class="disabled"><span>&raquo;</span></li>
-                                {% endif %}
-                              </ul>
-                            {% endif %}
-                        </div>
-                    </div>
+    <br>
+    <br>
+    <div class="row-fluid" id="cashed_jobs">
+        <div class="col-xs-12 col-md-8">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h2 class="panel-title">Cashed Work Orders</h2>
                 </div>
-                <div class="col-xs-12 col-sm-2">
-                    <button class="btn btn-lg btn-primary btn-block" id="cashedJ2" type="button">Cashed</button>
-                </div>
-                <div class="col-xs-12 col-sm-2">
-                    <button class="btn btn-lg btn-primary btn-block" id="uncashedJ2" type="button">Uncashed</button>
+                <!-- List group -->
+                <div class="list-group">
+                    {% for work_order in cashed_work_orders %}
+                        <a href="http://127.0.0.1:8000/reports/info/{{ work_order.id }}" class="list-group-item">
+                            <h4 class="list-group-item-heading">Customer: {{ work_order.customer }}</h4>
+                            <p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
+                            <p class="list-group-item-text"><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }}
+                                {{ work_order.assigned_worker.last_name }}</p>
+                            <p class="list-group-item-text"><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p>
+                        </a>
+                    {% endfor %}
                 </div>
             </div>
+            {% if cashed_work_orders.has_other_pages %}
+              <ul class="pagination">
+                {% if cashed_work_orders.has_previous %}
+                  <li><a href="?page={{ cashed_work_orders.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                  <li class="disabled"><span>&laquo;</span></li>
+                {% endif %}
+                {% for i in cashed_work_orders.paginator.page_range %}
+                  {% if cashed_work_orders.number == i %}
+                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                  {% else %}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                  {% endif %}
+                {% endfor %}
+                {% if cashed_work_orders.has_next %}
+                  <li><a href="?page={{ cashed_work_orders.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                  <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+              </ul>
+            {% endif %}
+        </div>
+        <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="cashedJ2" type="button">Cashed</button>
+        </div>
+        <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="uncashedJ2" type="button">Uncashed</button>
+        </div>
+    </div>
         <!--</div>-->
 
 {% endblock %}
