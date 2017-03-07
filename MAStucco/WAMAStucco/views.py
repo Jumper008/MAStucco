@@ -20,33 +20,37 @@ def empty_view(request):
 
 @login_required()
 def home_view(request):
-    if request.user.is_staff:
-        pending_work_orders = WorkOrder.objects.all().exclude(work_phase=WorkOrder.FINISHED)  # work_phase=WorkOrder.FINISHED, is_cashed= False)
-        if request.method == 'POST' and request.POST['search_title'].strip():
-            query_string = request.POST['search_title']
-            category_query1 = get_query(query_string, ['customer'])
+    if request.method == 'POST' and request.POST['search_title'].strip():
+        query_string = request.POST['search_title']
+        category_query1 = get_query(query_string, ['customer'])
+
+        if request.user.is_staff:
             found_category = WorkOrder.objects.all().exclude(work_phase=WorkOrder.FINISHED).filter(category_query1)
-            if not found_category:
-                return render(request, 'home.html', {'page_title': 'Home', 'is_search_empty': True})
-            else:
-                return render(request, 'home.html', {'page_title': 'Home', 'work_orders': found_category})
-
         else:
+            found_category = WorkOrder.objects.all().filter(assigned_worker=request.user).filter(category_query1)
+
+        if not found_category:
+            return render(request, 'home.html', {'page_title': 'Home', 'is_search_empty': True})
+        else:
+            return render(request, 'home.html', {'page_title': 'Home', 'work_orders': found_category})
+
+    else:
+        if request.user.is_staff:
             found_category = WorkOrder.objects.all().exclude(work_phase=WorkOrder.FINISHED)
-            paginator = Paginator(found_category, 5)  # Show 25 contacts per page
-            page = request.GET.get('page')
-            try:
-                found_category1 = paginator.page(page)
-            except PageNotAnInteger:
-                # If page is not an integer, deliver first page.
-                found_category1 = paginator.page(1)
-            except EmptyPage:
-                # If page is out of range (e.g. 9999), deliver last page of results.
-                found_category1 = paginator.page(paginator.num_pages)
+        else:
+            found_category = WorkOrder.objects.all().filter(assigned_worker=request.user)
+
+        paginator = Paginator(found_category, 5)  # Show 5 contacts per page
+        page = request.GET.get('page')
+        try:
+            found_category1 = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            found_category1 = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            found_category1 = paginator.page(paginator.num_pages)
         return render(request, 'home.html', {'page_title': 'Home', 'work_orders': found_category1})
-
-
-
 
 @login_required()
 def workorders_view(request):
@@ -55,11 +59,12 @@ def workorders_view(request):
 @login_required()
 @user_passes_test(user_check)
 def reports_view(request):
-    uncashed_work_orders = WorkOrder.objects.all().filter(is_cashed= False, work_phase=WorkOrder.FINISHED)#work_phase=WorkOrder.FINISHED, is_cashed= False)
+    uncashed_work_orders = WorkOrder.objects.all().filter(is_cashed= False, work_phase=WorkOrder.FINISHED)
     if request.method == 'POST' and request.POST['search_title'].strip():
         query_string = request.POST['search_title']
         category_query1 = get_query(query_string, ['customer'])
-        found_category = WorkOrder.objects.all().filter(is_cashed= False,  work_phase=WorkOrder.FINISHED).filter(category_query1)
+        found_category = WorkOrder.objects.all().filter(is_cashed= False,
+                                                        work_phase=WorkOrder.FINISHED).filter(category_query1)
         if not found_category:
             return render(request, 'reports.html', {'page_title': 'Reports', 'is_search_empty': True})
         else:
@@ -79,23 +84,20 @@ def reports_view(request):
             found_category1 = paginator.page(paginator.num_pages)
         return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': found_category1})
 
-
-
-
-
 def reports_cashed_view(request):
-    cashed_work_orders = WorkOrder.objects.all().filter(is_cashed=True,  work_phase=WorkOrder.FINISHED)#work_phase=WorkOrder.FINISHED, is_cashed= True)
+    cashed_work_orders = WorkOrder.objects.all().filter(is_cashed=True, work_phase=WorkOrder.FINISHED)
     if request.method == 'POST' and request.POST['search_title'].strip():
         query_string = request.POST['search_title']
         category_query1 = get_query(query_string, ['customer'])
-        found_category = WorkOrder.objects.all().filter(is_cashed= True,  work_phase=WorkOrder.FINISHED).filter(category_query1)
+        found_category = WorkOrder.objects.all().filter(is_cashed= True,
+                                                        work_phase=WorkOrder.FINISHED).filter(category_query1)
         if not found_category:
             return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'is_search_empty': True})
         else:
             return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'cashed_work_orders': found_category})
 
     else:
-        found_category = WorkOrder.objects.all().filter(is_cashed=True,  work_phase=WorkOrder.FINISHED)
+        found_category = WorkOrder.objects.all().filter(is_cashed=True, work_phase=WorkOrder.FINISHED)
         paginator = Paginator(found_category, 5)  # Show 25 contacts per page
         page = request.GET.get('page')
         try:
@@ -107,7 +109,6 @@ def reports_cashed_view(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             found_category1 = paginator.page(paginator.num_pages)
         return render(request, 'reports_cashed.html', {'page_title': 'Reports', 'cashed_work_orders': found_category1})
-
 
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
@@ -134,8 +135,6 @@ def get_query(query_string, search_fields):
         else:
             query = query & or_query
     return query
-
-
 
 @login_required()
 def workorder_view(request, id):
@@ -182,6 +181,8 @@ def login_view(request):
             if nextTo is None:
                 nextTo = reverse('home_page')
             return HttpResponseRedirect(nextTo)
+        else:
+            nextTo = None
     else:
         nextTo = request.GET.get('next', None)
 
@@ -189,5 +190,5 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.add_message(request, messages.INFO, 'Logged out.')
+    #messages.add_message(request, messages.INFO, 'Logged out.')
     return HttpResponseRedirect(reverse('login_page'))
