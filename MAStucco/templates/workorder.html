@@ -45,7 +45,7 @@
         <div class="row">
             <div class="col-md-4">
                 {% if user.is_staff %}
-                    {% if work_order.is_cashed or work_order.work_phase != 'FINISHED' %}
+                    {% if work_order.is_cashed or work_order.work_phase != 'FI' %}
                         <button class="btn btn-lg btn-primary btn-block disabled" type="submit">Cash</button>
                     {% else %}
                         <form action="" method="post">
