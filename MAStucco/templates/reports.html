@@ -21,15 +21,7 @@
     <!--<div class="container-fluid" id="uncashed_jobs">-->
     <br>
     <br>
-    {% if messages %}
-        <div class="row">
-            <div class="col-xs-12">
-                {% for message in messages %}
-                    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
+
     <div class="row-fluid" id="uncashed_jobs">
         <div class="col-xs-12 col-sm-8" >
             <div class="panel panel-default">
