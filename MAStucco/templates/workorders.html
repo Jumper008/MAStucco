@@ -1,4 +1,15 @@
 {% extends 'base.html' %}
+{% load filters %}
+{% load static %}
+
 
 {% block content %}
+    <br>
+     <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="orderInput" type="button">Add order</button>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'js/order_input.js' %}"></script>
 {% endblock %}

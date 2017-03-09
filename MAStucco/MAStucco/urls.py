@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^home/$', views.home_view, name='home_page'),
     url(r'^home/info/(?P<id>\d+)$', views.workorder_view),
     url(r'^workorders/$', views.workorders_view, name='workorders_page'),
+    url(r'^workorders/order_input$', views.orderinput_view, name='order_input_page'),
     url(r'^reports/$', views.reports_view, name='reports_page'),
     url(r'^reports_cashed/$', views.reports_cashed_view, name='reports_cashed_page'),
     url(r'^reports/info/(?P<id>\d+)$', views.workorder_view),

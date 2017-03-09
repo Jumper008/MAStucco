@@ -53,6 +53,11 @@ def home_view(request):
         return render(request, 'home.html', {'page_title': 'Home', 'work_orders': found_category1})
 
 @login_required()
+@user_passes_test(user_check)
+def orderinput_view(request):
+    return render(request, 'order_input.html', {'page_title': 'Order Input'})
+
+@login_required()
 def workorders_view(request):
     return render(request, 'workorders.html', {'page_title': 'Work Orders'})
 
@@ -153,6 +158,7 @@ def workorder_view(request, id):
         if request.user.is_staff:
             work_order.is_cashed = True
             work_order.save()
+            messages.success(request, 'Report has been cashed')
         else:
             work_order.is_taken = True
             work_order.assigned_worker = request.user
