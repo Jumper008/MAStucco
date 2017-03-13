@@ -2,9 +2,56 @@
 {% load filters %}
 {% load static %}
 
+{% block custom_css %}
+    <link href="{% static 'css/order_input.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
-
+    <br>
+    <form action='' method='post' class="form-inline">
+    {% csrf_token %}
+        <div class="card" id="report_info">
+            <div class="card-block text-nowrap">
+                <div class="col-md-8">
+                    <div class="panel panel-default">
+                        <div class = "container-fluid">
+                            <h1>Job Input</h1>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    {{ sub_form.as_p }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h1>Work Order Input</h1>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    {{ form.as_p }}
+                                </div>
+                            </div>
+                            <hr>
+                            <h1>Part Order Input</h1>
+                            <div id = 'part_order'>
+                                <div class="form-group">
+                                    <div class="col-md-5">
+                                        {{ sub_sub_form.as_p }}
+                                    </div>
+                                </div>
+                                <div class="col-md-offset-10">
+                                        <input class="btn btn-primary" id = "add_part" type='button' value='Add part'/>
+                                    </div>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input class="btn btn-lg btn-primary btn-block" type='submit' value='Confirm'/>
+    </form>
 
 {% endblock %}
 
+{% block custom_js %}
+    <script src="{% static 'js/order_input.js' %}"></script>
+{% endblock %}
