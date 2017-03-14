@@ -11,12 +11,18 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 import re
 from django.db.models import Q
+from django.http import HttpResponseRedirect
+from .forms import WorkOrderForm, JobForm, PartOrderForm
+from django.utils import timezone
+from django.forms.models import inlineformset_factory
+
 
 def user_check(user):
     return user.is_staff
 
 def empty_view(request):
     return HttpResponseRedirect(reverse('home_page'))
+
 
 @login_required()
 def home_view(request):
@@ -53,9 +59,41 @@ def home_view(request):
         return render(request, 'home.html', {'page_title': 'Home', 'work_orders': found_category1})
 
 @login_required()
-@user_passes_test(user_check)
 def orderinput_view(request):
-    return render(request, 'order_input.html', {'page_title': 'Order Input'})
+    if request.user.is_staff:
+        if request.method == 'POST':
+            # Create a form instance and populate it with data from the request.
+            form = WorkOrderForm(request.POST)
+            sub_form = JobForm(request.POST)
+            sub_sub_form = PartOrderForm(request.POST)
+            if form.is_valid() and sub_form.is_valid() and sub_sub_form.is_valid():
+                a = form.save(commit=False)
+                a.is_cashed = False
+                a.is_taken = False
+                a.work_phase = 'AD'
+                a.assigned_worker = request.user
+                a.date = timezone.now()
+                a.save()
+                b = sub_form.save(commit=False)
+                b.work_order = a
+                b.save()
+                c = sub_sub_form.save(commit=False)
+                c.work_order = a
+                c.save()
+                messages.success(request, 'Added a new work order successfully')
+                return HttpResponseRedirect(reverse('home_page'))
+        else:
+            form = WorkOrderForm()
+            sub_form = JobForm()
+            sub_sub_form = PartOrderForm()
+
+        return render(request, 'order_input.html', {'form': form, 'sub_form': sub_form, 'sub_sub_form': sub_sub_form})
+
+    else:
+        messages.error(request, 'You are not authorized to access this area')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
 
 @login_required()
 def workorders_view(request):
@@ -88,6 +126,7 @@ def reports_view(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             found_category1 = paginator.page(paginator.num_pages)
         return render(request, 'reports.html', {'page_title': 'Reports', 'uncashed_work_orders': found_category1})
+
 
 def reports_cashed_view(request):
     cashed_work_orders = WorkOrder.objects.all().filter(is_cashed=True, work_phase=WorkOrder.FINISHED)
@@ -196,5 +235,5 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    #messages.add_message(request, messages.INFO, 'Logged out.')
+    #messages.success(request, 'Successfully logged out')
     return HttpResponseRedirect(reverse('login_page'))
