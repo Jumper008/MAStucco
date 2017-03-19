@@ -14,6 +14,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect
 from .forms import WorkOrderForm, JobForm, PartOrderForm
 from django.utils import timezone
+from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
 
 
@@ -61,12 +62,12 @@ def home_view(request):
 @login_required()
 def orderinput_view(request):
     if request.user.is_staff:
+        sub_sub_form_set = formset_factory(PartOrderForm, extra=2)
         if request.method == 'POST':
-            # Create a form instance and populate it with data from the request.
             form = WorkOrderForm(request.POST)
             sub_form = JobForm(request.POST)
-            sub_sub_form = PartOrderForm(request.POST)
-            if form.is_valid() and sub_form.is_valid() and sub_sub_form.is_valid():
+            formset_part = sub_sub_form_set(request.POST)
+            if form.is_valid() and sub_form.is_valid():
                 a = form.save(commit=False)
                 a.is_cashed = False
                 a.is_taken = False
@@ -77,17 +78,21 @@ def orderinput_view(request):
                 b = sub_form.save(commit=False)
                 b.work_order = a
                 b.save()
-                c = sub_sub_form.save(commit=False)
-                c.work_order = a
-                c.save()
+
+            if formset_part.is_valid():
+                for form_part in formset_part:
+                    c = form_part.save(commit=False)
+                    c.work_order = a
+                    c.save()
+
                 messages.success(request, 'Added a new work order successfully')
                 return HttpResponseRedirect(reverse('home_page'))
         else:
             form = WorkOrderForm()
             sub_form = JobForm()
-            sub_sub_form = PartOrderForm()
+            #sub_sub_form = PartOrderForm()
 
-        return render(request, 'order_input.html', {'form': form, 'sub_form': sub_form, 'sub_sub_form': sub_sub_form})
+        return render(request, 'order_input.html', {'form': form, 'sub_form': sub_form, 'formset': sub_sub_form_set()})
 
     else:
         messages.error(request, 'You are not authorized to access this area')

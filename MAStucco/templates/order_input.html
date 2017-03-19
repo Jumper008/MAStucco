@@ -33,21 +33,23 @@
                             <h1>Part Order Input</h1>
                             <div id = 'part_order'>
                                 <div class="form-group">
-                                    <div class="col-md-5">
-                                        {{ sub_sub_form.as_p }}
+                                    <div class="col-md-12">
+                                    {{ formset.management_form }}
+                                        {% for form in formset %}
+                                            {{ form.as_p }}
+                                            <div>
+                                                <hr>
+                                            </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
-                                <div class="col-md-offset-10">
-                                        <input class="btn btn-primary" id = "add_part" type='button' value='Add part'/>
-                                    </div>
-                                <br>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <input class="btn btn-lg btn-primary btn-block" type='submit' value='Confirm'/>
+        <input class="btn btn-lg btn-primary btn-block" type='submit' value='Add'/>
     </form>
 
 {% endblock %}
