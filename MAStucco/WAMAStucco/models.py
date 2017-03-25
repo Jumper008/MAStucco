@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -9,6 +11,7 @@ from datetime import datetime
 # Validators:
 
 # Class Models:
+
 class WorkOrder(models.Model):
 
     date = models.DateTimeField()
@@ -64,10 +67,12 @@ class WorkOrder(models.Model):
     class Meta:
         ordering = ['-date']
 
+
 class WorkOrderForm(ModelForm):
     class Meta:
         model = WorkOrder
         fields = ['customer', 'order_by', 'model', 'notes']
+
 
 class PartOrder(models.Model):
 
@@ -102,10 +107,12 @@ class PartOrder(models.Model):
     def __unicode__(self):
         return str(self.part)
 
+
 class PartOrderForm(ModelForm):
     class Meta:
         model = PartOrder
         fields = ['quantity', 'part', 'measure']
+
 
 class Job(models.Model):
 
@@ -145,7 +152,50 @@ class Job(models.Model):
     class Meta:
         unique_together = ('lot', 'subdivision')
 
+
 class JobForm(ModelForm):
     class Meta:
         model = Job
         fields = ['lot', 'address', 'subdivision']
+
+
+class Profile(models.Model):
+    user = models.OneToOneField\
+        (
+            User,
+            on_delete=models.CASCADE,
+            related_name='profile',
+            related_query_name='profile'
+        )
+    NONE = 'NA'
+    CUTTING = 'CU'
+    MOULDING = 'MO'
+    INSTALLING = 'IN'
+    position = models.CharField\
+        (
+            max_length=2,
+            default=NONE
+        )
+
+    @classmethod
+    def exists(cls, id):
+        return len(cls.objects.filter(pk=id)) > 0
+
+    @classmethod
+    def getByID(cls, id):
+        return cls.objects.get(pk=id)
+
+    def __str__(self):
+        return str(self.user.username)
+
+    def __unicode__(self):
+        return str(self.user.username)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, created, **kwargs):
+    instance.profile.save()

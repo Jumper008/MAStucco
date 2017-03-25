@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -102,7 +103,59 @@ def orderinput_view(request):
 
 @login_required()
 def workorders_view(request):
-    return render(request, 'workorders.html', {'page_title': 'Work Orders'})
+    if request.method == 'POST' and request.POST['search_title'].strip():
+        query_string = request.POST['search_title']
+        category_query1 = get_query(query_string, ['customer'])
+
+        # --Check position--
+        if request.user.profile.position == 'NA':
+            found_category = WorkOrder.objects.all().filter(is_taken=False).exclude(work_phase=WorkOrder.FINISHED)\
+                .filter(category_query1)
+        elif request.user.profile.position == 'CU':
+            found_category = WorkOrder.objects.all().filter(is_taken=False).exclude(work_phase=WorkOrder.FINISHED) \
+                .exclude(work_phase=WorkOrder.MOULDING).exclude(work_phase=WorkOrder.INSTALLING) \
+                .filter(category_query1)
+        elif request.user.profile.position == 'MO':
+            found_category = WorkOrder.objects.all().filter(is_taken=False)\
+                .filter(work_phase=WorkOrder.MOULDING).filter(category_query1)
+        elif request.user.profile.position == 'IN':
+            found_category = WorkOrder.objects.all().filter(is_taken=False)\
+                .filter(work_phase=WorkOrder.INSTALLING).filter(category_query1)
+        # ----------------------------------
+
+        if not found_category:
+            return render(request, 'workorders.html', {'page_title': 'Work Orders', 'is_search_empty': True})
+        else:
+            return render(request, 'workorders.html',
+                          {'page_title': 'Work Orders', 'work_orders': found_category})
+
+    else:
+
+        # --Check position--
+        if request.user.profile.position == 'NA':
+            found_category = WorkOrder.objects.all().filter(is_taken=False).exclude(work_phase=WorkOrder.FINISHED)
+        elif request.user.profile.position == 'CU':
+            found_category = WorkOrder.objects.all().filter(is_taken=False).exclude(work_phase=WorkOrder.FINISHED) \
+                .exclude(work_phase=WorkOrder.MOULDING).exclude(work_phase=WorkOrder.INSTALLING)
+        elif request.user.profile.position == 'MO':
+            found_category = WorkOrder.objects.all().filter(is_taken=False).filter(work_phase=WorkOrder.MOULDING)
+        elif request.user.profile.position == 'IN':
+            found_category = WorkOrder.objects.all().filter(is_taken=False).filter(work_phase=WorkOrder.INSTALLING)
+        # ----------------------------------
+
+        paginator = Paginator(found_category, 5)  # Show 25 contacts per page
+        page = request.GET.get('page')
+        try:
+            found_category1 = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            found_category1 = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            found_category1 = paginator.page(paginator.num_pages)
+        return render(request, 'workorders.html',
+                      {'page_title': 'Work Orders', 'work_orders': found_category1})
+
 
 @login_required()
 @user_passes_test(user_check)

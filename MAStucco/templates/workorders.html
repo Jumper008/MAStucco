@@ -5,8 +5,74 @@
 
 {% block content %}
     <br>
-     <div class="col-xs-12 col-sm-2">
-            <button class="btn btn-lg btn-primary btn-block" id="orderInput" type="button">Add order</button>
+
+    <form action='' method='post'>
+        {% csrf_token %}
+        <div class="col-lg-6">
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type='submit' value='Search'>Go!</button>
+              </span>
+                <input class="form-control" type='text' name="search_title" size="30" placeholder="Search for...">
+            </div>
+        </div>
+    </form>
+
+    {% if user.is_staff %}
+        <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="orderInput" type="button" style="width: 110px;height: 40px; margin-bottom: 5px; padding-bottom: 5px">Add order</button>
+        </div>
+    {% endif %}
+    <br>
+
+    <div class="container-fluid" id="uncashed_jobs">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">
+                        <h2 class="panel-title">Work Orders</h2>
+                    </div>
+                    <!-- List group -->
+                    <div class="list-group">
+                        {% for work_order in work_orders %}
+                            <a href="http://127.0.0.1:8000/home/info/{{ work_order.id }}" class="list-group-item">
+                            <!--<a href="#" class="list-group-item">-->
+                                <h4 class="list-group-item-heading">Customer: {{ work_order.customer }}</h4>
+                                <p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
+                                <p class="list-group-item-text"><strong>Worker:</strong> {{ work_order.assigned_worker.first_name }}
+                                    {{ work_order.assigned_worker.last_name }}</p>
+                                <p class="list-group-item-text"><strong>Date:</strong> {{ work_order.date|date:'l, F jS' }}</p>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+    {% if work_orders.has_other_pages %}
+      <ul class="pagination">
+        {% if work_orders.has_previous %}
+          <li><a href="?page={{ work_orders.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+          <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in work_orders.paginator.page_range %}
+          {% if uncashed_work_orders.number == i %}
+            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+          {% else %}
+            <li><a href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if work_orders.has_next %}
+          <li><a href="?page={{ work_orders.next_page_number }}">&raquo;</a></li>
+        {% else %}
+          <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+      </ul>
+    {% endif %}
     </div>
 {% endblock %}
 
