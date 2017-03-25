@@ -37,15 +37,47 @@ class PartOrderForm(ModelForm):
         }
 
 
-class UserForm(ModelForm):
+class UserCreationForm(ModelForm):
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control', 'style': 'width:270px;'}))
+    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput(attrs={'class': 'form-control', 'style': 'width:270px;'}))
+
     class Meta:
-        password = forms.CharField(widget=forms.PasswordInput)
         model = User
-        fields = ['first_name', 'last_name', 'email','username', 'password']
+        fields = ['first_name', 'last_name', 'email','username']
         widgets = {
             'username': TextInput(attrs={'class': 'form-control', 'placeholder': 'Username...', 'style': 'width:270px;'}),
             'email': TextInput(attrs={'class': 'form-control', 'placeholder': 'Email...', 'style': 'width:270px;'}),
             'first_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name...', 'style': 'width:270px;'}),
-            'last_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name...', 'style': 'width:270px;'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'style': 'width:270px;'})
+            'last_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name...', 'style': 'width:270px;'})
         }
+
+    def clean_password2(self):
+        # Check that the two password entries match
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        return password2
+
+    def save(self, commit=True):
+        # Save the provided password in hashed format
+        user = super(UserCreationForm, self).save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.exclude(pk=self.instance.pk).filter(username=username).exists():
+            raise forms.ValidationError(u'Username "%s" is already in use.' % username)
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        duplicate_users = User.objects.filter(email=email)
+        if self.instance.pk is not None:  # If you're editing an user, remove him from the duplicated results
+            duplicate_users = duplicate_users.exclude(pk=self.instance.pk)
+        if duplicate_users.exists():
+            raise forms.ValidationError("Email is already registered.")
+        return email

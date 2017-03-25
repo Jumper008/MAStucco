@@ -13,7 +13,7 @@ from django.shortcuts import render
 import re
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from .forms import WorkOrderForm, JobForm, PartOrderForm, UserForm
+from .forms import WorkOrderForm, JobForm, PartOrderForm, UserCreationForm
 from django.utils import timezone
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
@@ -218,55 +218,69 @@ def workorder_view(request, id):
 @login_required()
 def workeradministrarion_view(request):
     worker_list = User.objects.all()
-    if request.method == 'POST' and request.POST['search_title'].strip():
-        query_string = request.POST['search_title']
-        category_query1 = get_query(query_string, ['username'])
-        found_category = User.objects.all().filter().filter(category_query1)
-        if not found_category:
-            return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'is_search_empty': True})
-        else:
-            return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'worker_list': found_category})
+    if request.user.is_staff:
+        if request.method == 'POST' and request.POST['search_title'].strip():
+            query_string = request.POST['search_title']
+            category_query1 = get_query(query_string, ['username'])
+            found_category = User.objects.all().filter().filter(category_query1)
+            if not found_category:
+                return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'is_search_empty': True})
+            else:
+                return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'worker_list': found_category})
 
+        else:
+            found_category = User.objects.all()
+            paginator = Paginator(found_category, 5)  # Show 25 workers per page
+            page = request.GET.get('page')
+            try:
+                found_category1 = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                found_category1 = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                found_category1 = paginator.page(paginator.num_pages)
+            return render(request, 'workeradministration.html',
+                              {'page_title': 'Worker Administration', 'worker_list': found_category1})
     else:
-        found_category = User.objects.all()
-        paginator = Paginator(found_category, 5)  # Show 25 workers per page
-        page = request.GET.get('page')
-        try:
-            found_category1 = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            found_category1 = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            found_category1 = paginator.page(paginator.num_pages)
-        return render(request, 'workeradministration.html',
-                          {'page_title': 'Worker Administration', 'worker_list': found_category1})
+        messages.error(request, 'You are not authorized to access this area')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required()
 def updateuser_view(request, id):
     obj = get_object_or_404(User, pk=id)
-    form =UserForm(request.POST or None,
+    form =UserCreationForm(request.POST or None,
                         request.FILES or None, instance=obj)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Changes saved successfully')
-            return HttpResponseRedirect(reverse('home_page'))
-    return render(request, 'edit_worker.html', {'form': form})
+    if request.user.is_staff:
+        if request.method == 'POST' and 'edit_worker' in request.POST:
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Changes saved successfully')
+                return HttpResponseRedirect(reverse('home_page'))
+        if request.method == 'POST' and 'delete_worker' in request.POST:
+            if form.is_valid():
+                User.is_active = False
+                form.save()
+                messages.success(request, 'Worker deleted successfully')
+                return HttpResponseRedirect(reverse('home_page'))
+        return render(request, 'edit_worker.html', {'form': form})
+    else:
+        messages.error(request, 'You are not authorized to access this area')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 @login_required()
 def newworker_view(request):
     if request.user.is_staff:
         if request.method == "POST":
-            form = UserForm(request.POST)
+            form = UserCreationForm(request.POST)
             if form.is_valid():
-                new_user = User.objects.create_user(**form.cleaned_data)
+                form.save()
                 messages.success(request, 'Added a new worker successfully')
                 return HttpResponseRedirect(reverse('home_page'))
         else:
-            form = UserForm()
+            form = UserCreationForm()
 
         return render(request, 'new_worker.html', {'form': form})
 
