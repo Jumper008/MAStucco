@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load filters %}
+{% load static %}
+
+{% block custom_css %}
+    <link href="{% static 'css/order_input.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <br>
+    <form action='' method='post' class="form-inline">
+    {% csrf_token %}
+        <div class="card" id="report_info">
+            <div class="card-block text-nowrap">
+                <div class="col-md-8">
+                    <div class="panel panel-default">
+                        <div class = "container-fluid">
+                            <h1>Register new worker</h1>
+                            <div class="form-group">
+                                <div class="col-md-5">
+                                    {{ form.as_p }}
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+            <input class="btn btn-lg btn-primary btn-block" type='submit' value='Add Worker'/>
+            </div>
+            <div class="col-xs-12 col-sm-2">
+            <a href="http://127.0.0.1:8000/home/" id="cancel" name="cancel" class="btn btn-lg btn-primary btn-block">Cancel</a>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'js/new_worker.js' %}"></script>
+{% endblock %}

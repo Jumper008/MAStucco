@@ -5,17 +5,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from .models import WorkOrder, Job, PartOrder
+from django.shortcuts import render, get_object_or_404
+
+from .models import WorkOrder, Job, PartOrder, User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 import re
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from .forms import WorkOrderForm, JobForm, PartOrderForm
+from .forms import WorkOrderForm, JobForm, PartOrderForm, UserForm
 from django.utils import timezone
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
+
+
 
 
 def user_check(user):
@@ -58,6 +61,7 @@ def home_view(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             found_category1 = paginator.page(paginator.num_pages)
         return render(request, 'home.html', {'page_title': 'Home', 'work_orders': found_category1})
+
 
 @login_required()
 def orderinput_view(request):
@@ -212,9 +216,63 @@ def workorder_view(request, id):
                                               'part_orders': part_orders})
 
 @login_required()
-@user_passes_test(user_check)
 def workeradministrarion_view(request):
-    return render(request, 'workeradministration.html', {'page_title': 'Worker Administration'})
+    worker_list = User.objects.all()
+    if request.method == 'POST' and request.POST['search_title'].strip():
+        query_string = request.POST['search_title']
+        category_query1 = get_query(query_string, ['username'])
+        found_category = User.objects.all().filter().filter(category_query1)
+        if not found_category:
+            return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'is_search_empty': True})
+        else:
+            return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'worker_list': found_category})
+
+    else:
+        found_category = User.objects.all()
+        paginator = Paginator(found_category, 5)  # Show 25 workers per page
+        page = request.GET.get('page')
+        try:
+            found_category1 = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            found_category1 = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            found_category1 = paginator.page(paginator.num_pages)
+        return render(request, 'workeradministration.html',
+                          {'page_title': 'Worker Administration', 'worker_list': found_category1})
+
+
+@login_required()
+def updateuser_view(request, id):
+    obj = get_object_or_404(User, pk=id)
+    form =UserForm(request.POST or None,
+                        request.FILES or None, instance=obj)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Changes saved successfully')
+            return HttpResponseRedirect(reverse('home_page'))
+    return render(request, 'edit_worker.html', {'form': form})
+
+
+@login_required()
+def newworker_view(request):
+    if request.user.is_staff:
+        if request.method == "POST":
+            form = UserForm(request.POST)
+            if form.is_valid():
+                new_user = User.objects.create_user(**form.cleaned_data)
+                messages.success(request, 'Added a new worker successfully')
+                return HttpResponseRedirect(reverse('home_page'))
+        else:
+            form = UserForm()
+
+        return render(request, 'new_worker.html', {'form': form})
+
+    else:
+        messages.error(request, 'You are not authorized to access this area')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 def login_view(request):
     if request.method == 'POST':
