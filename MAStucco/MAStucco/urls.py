@@ -27,7 +27,9 @@ urlpatterns = [
     url(r'^reports_cashed/$', views.reports_cashed_view, name='reports_cashed_page'),
     url(r'^reports/info/(?P<id>\d+)$', views.workorder_view),
     url(r'^workeradministration/$', views.workeradministrarion_view, name='workeradministration_page'),
+    url(r'^workeradministration/info/(?P<id>\d+)$', views.updateuser_view, name='edit_worker_page'),
+    url(r'^workeradministration/new_worker$', views.newworker_view, name='new_worker_page'),
     url(r'^login/$', views.login_view, name='login_page'),
     url(r'^logout/$', views.logout_view),
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls)
 ]

@@ -1,4 +1,75 @@
 {% extends 'base.html' %}
+{% load filters %}
+{% load static %}
 
 {% block content %}
+     <br/>
+    <!--Search bar-->
+    <form action='' method='post'>
+        {% csrf_token %}
+        <div class="col-lg-6">
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type='submit' value='Search'>Go!</button>
+              </span>
+                <input class="form-control" type='text' name="search_title" size="30" placeholder="Search for...">
+            </div>
+        </div>
+    </form>
+
+
+    <!--<div class="container-fluid" id="uncashed_jobs">-->
+    <br>
+    <br>
+
+    <div class="row-fluid" id="workers">
+        <div class="col-xs-12 col-sm-8" >
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h2 class="panel-title">Worker List</h2>
+                </div>
+                <!-- List group -->
+                <div class="list-group">
+                    {% for user in worker_list %}
+                        <a href="http://127.0.0.1:8000/workeradministration/info/{{ user.id }}" class="list-group-item">
+                            <h4 class="list-group-item-heading">Username: {{ user.username }}</h4>
+                            <p class="list-group-item-text"><strong>Full Name:</strong> {{ user.first_name }}
+                                {{ user.last_name }}</p>
+                            <p class="list-group-item-text"><strong>Email:</strong> {{ user.email }}</p>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% if worker_list.has_other_pages %}
+              <ul class="pagination">
+                {% if worker_list.has_previous %}
+                  <li><a href="?page={{ worker_list.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                  <li class="disabled"><span>&laquo;</span></li>
+                {% endif %}
+                {% for i in worker_list.paginator.page_range %}
+                  {% if worker_list.number == i %}
+                    <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                  {% else %}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                  {% endif %}
+                {% endfor %}
+                {% if worker_list.has_next %}
+                  <li><a href="?page={{ worker_list.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                  <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+              </ul>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+     <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="addWorker" type="button">Add worker</button>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'js/new_worker.js' %}"></script>
 {% endblock %}
