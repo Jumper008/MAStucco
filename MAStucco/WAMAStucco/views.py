@@ -13,7 +13,7 @@ from django.shortcuts import render
 import re
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from .forms import WorkOrderForm, JobForm, PartOrderForm, UserCreationForm
+from .forms import WorkOrderForm, JobForm, PartOrderForm, UserCreationForm, UserChangeForm
 from django.utils import timezone
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
@@ -250,20 +250,14 @@ def workeradministrarion_view(request):
 @login_required()
 def updateuser_view(request, id):
     obj = get_object_or_404(User, pk=id)
-    form =UserCreationForm(request.POST or None,
+    form = UserChangeForm(request.POST or None,
                         request.FILES or None, instance=obj)
     if request.user.is_staff:
         if request.method == 'POST' and 'edit_worker' in request.POST:
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Changes saved successfully')
-                return HttpResponseRedirect(reverse('home_page'))
-        if request.method == 'POST' and 'delete_worker' in request.POST:
-            if form.is_valid():
-                User.is_active = False
-                form.save()
-                messages.success(request, 'Worker deleted successfully')
-                return HttpResponseRedirect(reverse('home_page'))
+                return HttpResponseRedirect(reverse('workeradministration_page'))
         return render(request, 'edit_worker.html', {'form': form})
     else:
         messages.error(request, 'You are not authorized to access this area')
@@ -278,7 +272,7 @@ def newworker_view(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Added a new worker successfully')
-                return HttpResponseRedirect(reverse('home_page'))
+                return HttpResponseRedirect(reverse('workeradministration_page'))
         else:
             form = UserCreationForm()
 

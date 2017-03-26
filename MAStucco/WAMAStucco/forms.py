@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.forms import ModelForm,  TextInput
 from .models import WorkOrder, Job, PartOrder, User
 from django import forms
@@ -38,6 +39,7 @@ class PartOrderForm(ModelForm):
 
 
 class UserCreationForm(ModelForm):
+    username = forms.CharField(help_text=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username...', 'style': 'width:270px;'}))
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control', 'style': 'width:270px;'}))
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput(attrs={'class': 'form-control', 'style': 'width:270px;'}))
 
@@ -45,7 +47,6 @@ class UserCreationForm(ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email','username']
         widgets = {
-            'username': TextInput(attrs={'class': 'form-control', 'placeholder': 'Username...', 'style': 'width:270px;'}),
             'email': TextInput(attrs={'class': 'form-control', 'placeholder': 'Email...', 'style': 'width:270px;'}),
             'first_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name...', 'style': 'width:270px;'}),
             'last_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name...', 'style': 'width:270px;'})
@@ -81,3 +82,17 @@ class UserCreationForm(ModelForm):
         if duplicate_users.exists():
             raise forms.ValidationError("Email is already registered.")
         return email
+
+class UserChangeForm(ModelForm):
+    username = forms.CharField(help_text=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username...', 'style': 'width:270px;'}))
+    is_active = forms.BooleanField(help_text=False)
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username', 'is_active']
+        widgets = {
+            'email': TextInput(attrs={'class': 'form-control', 'placeholder': 'Email...', 'style': 'width:270px;'}),
+            'first_name': TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'First Name...', 'style': 'width:270px;'}),
+            'last_name': TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Last Name...', 'style': 'width:270px;'})
+        }
