@@ -18,16 +18,16 @@
     </form>
 
 
-    <!--<div class="container-fluid" id="uncashed_jobs">-->
+    <!--<div class="container-fluid" id="active_workers">-->
     <br>
     <br>
 
-    <div class="row-fluid" id="workers">
+    <div class="row-fluid" id="active_workers">
         <div class="col-xs-12 col-sm-8" >
             <div class="panel panel-default">
                 <!-- Default panel contents -->
                 <div class="panel-heading">
-                    <h2 class="panel-title">Worker List</h2>
+                    <h2 class="panel-title">Active Workers List</h2>
                 </div>
                 <!-- List group -->
                 <div class="list-group">
@@ -41,7 +41,7 @@
                     {% endfor %}
                 </div>
             </div>
-        {% if worker_list.has_other_pages %}
+            {% if worker_list.has_other_pages %}
               <ul class="pagination">
                 {% if worker_list.has_previous %}
                   <li><a href="?page={{ worker_list.previous_page_number }}">&laquo;</a></li>
@@ -63,7 +63,15 @@
               </ul>
             {% endif %}
         </div>
+        <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="unactiveW" type="button">Unactive</button>
+        </div>
+        <div class="col-xs-12 col-sm-2">
+            <button class="btn btn-lg btn-primary btn-block" id="activeW" type="button" style="background-color: #ffb277;">Active</button>
+        </div>
     </div>
+        <!--</div>-->
+    <br>
     <br>
      <div class="col-xs-12 col-sm-2">
             <button class="btn btn-lg btn-primary btn-block" id="addWorker" type="button">Add worker</button>
@@ -71,5 +79,6 @@
 {% endblock %}
 
 {% block custom_js %}
+    <script src="{% static 'js/workeradministration.js' %}"></script>
     <script src="{% static 'js/new_worker.js' %}"></script>
 {% endblock %}
