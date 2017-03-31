@@ -269,8 +269,8 @@ def workorder_view(request, id):
                                               'part_orders': part_orders})
 
 @login_required()
-def workeradministrarion_view(request):
-    worker_list = User.objects.all()
+def workeradministration_view(request):
+    worker_list = User.objects.all().filter(is_active=True)
     if request.user.is_staff:
         if request.method == 'POST' and request.POST['search_title'].strip():
             query_string = request.POST['search_title']
@@ -282,7 +282,7 @@ def workeradministrarion_view(request):
                 return render(request, 'workeradministration.html', {'page_title': 'Worker Administration', 'worker_list': found_category})
 
         else:
-            found_category = User.objects.all()
+            found_category = User.objects.all().filter(is_active=True)
             paginator = Paginator(found_category, 5)  # Show 25 workers per page
             page = request.GET.get('page')
             try:
@@ -299,6 +299,34 @@ def workeradministrarion_view(request):
         messages.error(request, 'You are not authorized to access this area')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+def workeradministration_unactive_view(request):
+    unactive_workers_list = User.objects.all().filter(is_active=False)
+    if request.user.is_staff:
+        if request.method == 'POST' and request.POST['search_title'].strip():
+            query_string = request.POST['search_title']
+            category_query1 = get_query(query_string, ['username'])
+            found_category = User.objects.all().filter(is_active= False).filter(category_query1)
+            if not found_category:
+                return render(request, 'workeradministration_unactive.html', {'page_title': 'Worker Administration', 'is_search_empty': True})
+            else:
+                return render(request, 'workeradministration_unactive.html', {'page_title': 'Worker Administration', 'unactive_workers_list': found_category})
+
+        else:
+            found_category = User.objects.all().filter(is_active=False)
+            paginator = Paginator(found_category, 5)  # Show 25 workers per page
+            page = request.GET.get('page')
+            try:
+                found_category1 = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                found_category1 = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                found_category1 = paginator.page(paginator.num_pages)
+            return render(request, 'workeradministration_unactive.html', {'page_title': 'Worker Administration', 'unactive_workers_list': found_category1})
+    else:
+        messages.error(request, 'You are not authorized to access this area')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required()
 def updateuser_view(request, id):
