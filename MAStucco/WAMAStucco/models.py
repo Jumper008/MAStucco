@@ -46,6 +46,8 @@ class WorkOrder(models.Model):
     assigned_worker = models.ForeignKey\
         (
             User,
+            blank=True,
+            null=True,
             related_name='work_orders',
             related_query_name='work_order'
         )
@@ -76,7 +78,10 @@ class WorkOrderForm(ModelForm):
 
 class PartOrder(models.Model):
 
-    quantity = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField\
+        (
+            null=True
+        )
     part = models.CharField\
         (
             max_length=128
@@ -160,6 +165,12 @@ class JobForm(ModelForm):
 
 
 class Profile(models.Model):
+    CHOICES = (
+        ('NA', 'None'),
+        ('CU', 'Cutting'),
+        ('MO', 'Moulding'),
+        ('IN', 'Installing')
+    )
     user = models.OneToOneField\
         (
             User,
@@ -174,7 +185,8 @@ class Profile(models.Model):
     position = models.CharField\
         (
             max_length=2,
-            default=NONE
+            choices=CHOICES,
+            null=True
         )
 
     @classmethod
@@ -191,11 +203,3 @@ class Profile(models.Model):
     def __unicode__(self):
         return str(self.user.username)
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, created, **kwargs):
-    instance.profile.save()

@@ -8,13 +8,13 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
-from .models import WorkOrder, Job, PartOrder, User
+from .models import WorkOrder, Job, PartOrder, User, Profile
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 import re
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from .forms import WorkOrderForm, JobForm, PartOrderForm, UserCreationForm, UserChangeForm
+from .forms import WorkOrderForm, JobForm, PartOrderForm, UserCreationForm, UserChangeForm, UserProfileForm
 from django.utils import timezone
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
@@ -67,7 +67,7 @@ def home_view(request):
 @login_required()
 def orderinput_view(request):
     if request.user.is_staff:
-        sub_sub_form_set = formset_factory(PartOrderForm, extra=2)
+        sub_sub_form_set = formset_factory(PartOrderForm, extra=5)
         if request.method == 'POST':
             form = WorkOrderForm(request.POST)
             sub_form = JobForm(request.POST)
@@ -76,19 +76,19 @@ def orderinput_view(request):
                 a = form.save(commit=False)
                 a.is_cashed = False
                 a.is_taken = False
-                a.work_phase = 'AD'
-                a.assigned_worker = request.user
+                a.work_phase = 'CU'
+                #a.assigned_worker = request.user
                 a.date = timezone.now()
                 a.save()
                 b = sub_form.save(commit=False)
                 b.work_order = a
                 b.save()
-
-            if formset_part.is_valid():
-                for form_part in formset_part:
-                    c = form_part.save(commit=False)
-                    c.work_order = a
-                    c.save()
+                if formset_part.is_valid():
+                    for form_part in formset_part:
+                        c = form_part.save(commit=False)
+                        c.work_order = a
+                        if c.part != '':
+                            c.save()
 
                 messages.success(request, 'Added a new work order successfully')
                 return HttpResponseRedirect(reverse('home_page'))
@@ -260,10 +260,27 @@ def workorder_view(request, id):
             work_order.is_cashed = True
             work_order.save()
             messages.success(request, 'Report has been cashed')
+        elif work_order.is_taken and work_order.assigned_worker == request.user:
+            if work_order.work_phase == 'CU':
+                work_order.work_phase = 'MO'
+                work_order.assigned_worker = None
+            elif work_order.work_phase == 'MO':
+                work_order.work_phase = 'IN'
+                work_order.assigned_worker = None
+            elif work_order.work_phase == 'IN':
+                work_order.work_phase = 'FI'
+
+            work_order.is_taken = False
+            work_order.save()
+            messages.success(request, 'Job has been marked as finished')
         else:
             work_order.is_taken = True
             work_order.assigned_worker = request.user
             work_order.save()
+            messages.success(request, 'Job has been taken')
+
+
+        return HttpResponseRedirect(reverse('home_page'))
     # Then we'll display all the information of the requested work order.
     return render(request, 'workorder.html', {'page_title': 'Work Order', 'work_order': work_order,
                                               'part_orders': part_orders})
@@ -331,15 +348,18 @@ def workeradministration_unactive_view(request):
 @login_required()
 def updateuser_view(request, id):
     obj = get_object_or_404(User, pk=id)
+    obj2 = get_object_or_404(Profile, user=id)
     form = UserChangeForm(request.POST or None,
                         request.FILES or None, instance=obj)
+    form2 = UserProfileForm(request.POST or None, request.FILES or None, instance=obj2)
     if request.user.is_staff:
         if request.method == 'POST' and 'edit_worker' in request.POST:
-            if form.is_valid():
+            if form.is_valid() and form2.is_valid():
                 form.save()
+                form2.save()
                 messages.success(request, 'Changes saved successfully')
                 return HttpResponseRedirect(reverse('workeradministration_page'))
-        return render(request, 'edit_worker.html', {'form': form})
+        return render(request, 'edit_worker.html', {'form': form, 'form2': form2})
     else:
         messages.error(request, 'You are not authorized to access this area')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
@@ -350,14 +370,19 @@ def newworker_view(request):
     if request.user.is_staff:
         if request.method == "POST":
             form = UserCreationForm(request.POST)
-            if form.is_valid():
-                form.save()
+            form2 = UserProfileForm(request.POST)
+            if form.is_valid() and form2.is_valid():
+                a = form.save(commit=False)
+                b = form2.save(commit=False)
+                a.save()
+                b.user = a
+                b.save()
                 messages.success(request, 'Added a new worker successfully')
                 return HttpResponseRedirect(reverse('workeradministration_page'))
         else:
             form = UserCreationForm()
-
-        return render(request, 'new_worker.html', {'form': form})
+            form2 = UserProfileForm()
+        return render(request, 'new_worker.html', {'form': form, 'form2': form2})
 
     else:
         messages.error(request, 'You are not authorized to access this area')
