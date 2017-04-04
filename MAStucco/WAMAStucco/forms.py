@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.forms import ModelForm,  TextInput
-from .models import WorkOrder, Job, PartOrder, User
+from django.forms import ModelForm, TextInput, Select
+from .models import WorkOrder, Job, PartOrder, User, Profile
 from django import forms
 
 
@@ -95,4 +95,13 @@ class UserChangeForm(ModelForm):
                 attrs={'class': 'form-control', 'placeholder': 'First Name...', 'style': 'width:270px;'}),
             'last_name': TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Last Name...', 'style': 'width:270px;'})
+        }
+
+
+class UserProfileForm(ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['position']
+        widgets = {
+            'position': Select(attrs={'class': 'form-control', 'style': 'width:270px;'})
         }
