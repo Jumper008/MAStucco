@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-
+from datetime import datetime
 from .models import WorkOrder, Job, PartOrder, User, Profile
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -18,8 +18,9 @@ from .forms import WorkOrderForm, JobForm, PartOrderForm, UserCreationForm, User
 from django.utils import timezone
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory
-
-
+from django.http import HttpResponse
+import xlwt
+import datetime
 
 
 def user_check(user):
@@ -387,6 +388,158 @@ def newworker_view(request):
     else:
         messages.error(request, 'You are not authorized to access this area')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def export_xls(request, id):
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Report_'+id+'_MAStucco.xls'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Work Order')
+    work_order = WorkOrder.getByID(id)
+    # Sheet header, first row
+    col_num = 0
+    row_num = 0
+
+    # BordersLeft
+    bordersContent = xlwt.Borders()
+    bordersContent.bottom = xlwt.Borders.THIN
+    bordersContent.top = xlwt.Borders.THIN
+    bordersContent.right = xlwt.Borders.MEDIUM
+    bordersContent.left = xlwt.Borders.THIN
+
+    # BordersLeft
+    borders = xlwt.Borders()
+    borders.bottom = xlwt.Borders.THIN
+    borders.top = xlwt.Borders.THIN
+    borders.right = xlwt.Borders.MEDIUM
+    borders.left = xlwt.Borders.MEDIUM
+
+    #BordersTitle
+    bordersTitle = xlwt.Borders()
+    bordersTitle.bottom = xlwt.Borders.MEDIUM
+    bordersTitle.top = xlwt.Borders.MEDIUM
+    bordersTitle.right = xlwt.Borders.MEDIUM
+    bordersTitle.left = xlwt.Borders.MEDIUM
+
+    #ColorTitle
+    patternTitle = xlwt.Pattern()
+    patternTitle.pattern = xlwt.Pattern.SOLID_PATTERN
+    patternTitle.pattern_fore_colour = xlwt.Style.colour_map['orange']
+
+    # ColorSubTitle
+    patternSubTitle = xlwt.Pattern()
+    patternSubTitle.pattern = xlwt.Pattern.SOLID_PATTERN
+    patternSubTitle.pattern_fore_colour = xlwt.Style.colour_map['light_orange']
+
+    # ColorLeft
+    pattern = xlwt.Pattern()
+    pattern.pattern = xlwt.Pattern.SOLID_PATTERN
+    pattern.pattern_fore_colour = xlwt.Style.colour_map['gray25']
+
+    #AlignmentContent
+    alignWrap = xlwt.Alignment()
+    alignWrap.horz = xlwt.Alignment.HORZ_RIGHT
+    alignWrap.vert = xlwt.Alignment.VERT_TOP
+    alignWrap.wrap = xlwt.Alignment.WRAP_AT_RIGHT
+
+    # StyleLeft
+    styleLeft = xlwt.XFStyle()
+    styleLeft.borders = all
+    styleLeft.font.bold = True
+    styleLeft.font.italic = True
+    styleLeft.borders = borders
+    styleLeft.pattern = pattern
+
+    # StyleTitle
+    styleTitle = xlwt.XFStyle()
+    styleTitle.borders = all
+    styleTitle.font.bold = True
+    styleTitle.font.italic = True
+    styleTitle.borders = bordersTitle
+    styleTitle.pattern = patternTitle
+
+    # StyleSubTitle
+    styleSubTitle = xlwt.XFStyle()
+    styleSubTitle.borders = all
+    styleSubTitle.font.bold = True
+    styleSubTitle.font.italic = True
+    styleSubTitle.borders = bordersTitle
+    styleSubTitle.pattern = patternSubTitle
+
+
+    # StyleContent
+    styleContent = xlwt.XFStyle()
+    styleContent.borders = bordersContent
+    styleContent.alignment = alignWrap
+
+    ws.write(row_num, col_num, 'Work Order', styleTitle)
+    ws.write(row_num, col_num+1, '', styleTitle)
+
+    rows = ['Customer', 'Phase', 'Worker', 'Date', 'Order By', 'Model', 'Notes']
+
+    for row in range(len(rows)):
+        ws.write(row_num+row+1, col_num, rows[row], styleLeft)
+        ws.col(col_num).width = 256 * 15
+
+    # Sheet body, remaining rows
+    #work_order = WorkOrder.getByID(49)
+    col_num += 1
+
+    ws.write(row_num+1, col_num, work_order.customer, styleContent)
+    ws.write(row_num+2, col_num, work_order.work_phase, styleContent)
+    ws.write(row_num+3, col_num, work_order.assigned_worker.first_name + ' ' + work_order.assigned_worker.last_name, styleContent)
+    ws.write(row_num + 4, col_num, work_order.date.strftime('%d, %b %Y'), styleContent)
+    ws.write(row_num+5, col_num, work_order.order_by, styleContent)
+    ws.write(row_num+6, col_num, work_order.model, styleContent)
+    ws.write(row_num+7, col_num, work_order.notes, styleContent)
+    ws.col(col_num).width = 256 * 40
+
+    col_num -= 1
+    row_num += 10
+
+    ws.write(row_num, col_num, 'Part Orders', styleTitle)
+    ws.write(row_num , col_num + 1, '', styleTitle)
+
+    part_orders = PartOrder.objects.all().filter(work_order=work_order)
+
+    rows = ['Quantity', 'Part', 'Measure']
+    cont=0
+    for part in part_orders:
+        cont+=1
+        ws.write(row_num + 1, col_num,'', styleSubTitle)
+        ws.write(row_num +1 , col_num+1, '', styleSubTitle)
+        row_num += 1
+        for row in range(len(rows)):
+            ws.write(row_num + row + 1, col_num, rows[row], styleLeft)
+            ws.col(col_num).width = 256 * 15
+
+        col_num += 1
+        ws.write(row_num + 1, col_num, part.quantity, styleContent)
+        ws.write(row_num + 2, col_num, part.part, styleContent)
+        ws.write(row_num + 3, col_num, part.measure, styleContent)
+        col_num -= 1
+        row_num += 3
+
+    row_num += 3
+
+    ws.write(row_num, col_num, 'Job Information', styleTitle)
+    ws.write(row_num , col_num + 1, '', styleTitle)
+
+    rows = ['Lot', 'Address', 'Subdivision']
+
+    for row in range(len(rows)):
+        ws.write(row_num + row + 1, col_num, rows[row], styleLeft)
+        ws.col(col_num).width = 256 * 15
+
+    col_num += 1
+    ws.write(row_num+1, col_num, work_order.job.lot, styleContent)
+    ws.write(row_num+2, col_num, work_order.job.address, styleContent)
+    ws.write(row_num+3, col_num, work_order.job.subdivision, styleContent)
+
+    wb.save(response)
+    return response
+
 
 def login_view(request):
     if request.method == 'POST':
