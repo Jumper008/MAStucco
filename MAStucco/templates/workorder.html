@@ -71,9 +71,9 @@
                         </form>
                     {% endif %}
                 {% endif %}
-            {% if work_order.work_phase == 'FI' %}
-                <a class="btn btn-lg btn-primary btn-block" href="{% url 'export_xls' work_order.id %}" type="button">Export Excel File</a>
-            {% endif %}
+                    {%  if work_order.is_cashed or work_order.work_phase != 'FI'  %}
+                        <a class="btn btn-lg btn-primary btn-block" href="{% url 'export_xls' work_order.id %}" type="button">Export Excel File</a>
+                    {% endif %}
 
             </div>
         </div>
