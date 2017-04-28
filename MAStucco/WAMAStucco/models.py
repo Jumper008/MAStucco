@@ -60,6 +60,7 @@ class WorkOrder(models.Model):
     def getByID(cls, id):
         return cls.objects.get(pk=id)
 
+
     def __str__(self):
         return str(self.customer)
 

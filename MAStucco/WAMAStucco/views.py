@@ -21,6 +21,7 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponse
 import xlwt
 import datetime
+from django.db import transaction
 
 
 def user_check(user):
@@ -275,10 +276,15 @@ def workorder_view(request, id):
             work_order.save()
             messages.success(request, 'Job has been marked as finished')
         else:
-            work_order.is_taken = True
-            work_order.assigned_worker = request.user
-            work_order.save()
-            messages.success(request, 'Job has been taken')
+            with transaction.atomic():
+                current = User.objects.select_for_update().get(id=request.user.id)
+                if(work_order.is_taken != False):
+                    messages.error(request, 'Job is not longer available')
+                else:
+                    work_order.is_taken = True
+                    work_order.assigned_worker = request.user
+                    work_order.save()
+                    messages.success(request, 'Job has been taken')
 
 
         return HttpResponseRedirect(reverse('home_page'))
