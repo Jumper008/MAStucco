@@ -45,7 +45,7 @@ class UserCreationForm(ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email','username']
+        fields = ['first_name', 'last_name', 'email', 'username']
         widgets = {
             'email': TextInput(attrs={'class': 'form-control', 'placeholder': 'Email...', 'style': 'width:270px;'}),
             'first_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name...', 'style': 'width:270px;'}),
