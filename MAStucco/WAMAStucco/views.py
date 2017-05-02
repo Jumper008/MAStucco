@@ -271,6 +271,7 @@ def workorder_view(request, id):
                 work_order.assigned_worker = None
             elif work_order.work_phase == 'IN':
                 work_order.work_phase = 'FI'
+                work_order.assigned_worker = None
 
             work_order.is_taken = False
             work_order.save()
