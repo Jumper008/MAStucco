@@ -32,7 +32,7 @@
                 <!-- List group -->
                 <div class="list-group">
                     {% for user in worker_list %}
-                        <a href="http://127.0.0.1:8000/workeradministration/info/{{ user.id }}" class="list-group-item">
+                        <a href="http://mastucco.pythonanywhere.com/workeradministration/info/{{ user.id }}" class="list-group-item">
                             <h4 class="list-group-item-heading">Username: {{ user.username }}</h4>
                             <p class="list-group-item-text"><strong>Full Name:</strong> {{ user.first_name }}
                                 {{ user.last_name }}</p>
