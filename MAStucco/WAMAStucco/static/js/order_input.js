@@ -3,5 +3,5 @@
  */
 
 $("#orderInput").click(function() {
-   window.location = "http://127.0.0.1:8000/workorders/order_input";
+   window.location = "http://mastucco.pythonanywhere.com/workorders/order_input";
 });
