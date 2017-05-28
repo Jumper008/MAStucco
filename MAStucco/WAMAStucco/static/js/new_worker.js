@@ -3,5 +3,5 @@
  */
 
 $("#addWorker").click(function() {
-   window.location = "http://127.0.0.1:8000/workeradministration/new_worker";
+   window.location = "http://mastucco.pythonanywhere.com/workeradministration/new_worker";
 });
