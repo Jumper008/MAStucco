@@ -35,7 +35,7 @@
                     <!-- List group -->
                     <div class="list-group">
                         {% for work_order in work_orders %}
-                            <a href="http://127.0.0.1:8000/home/info/{{ work_order.id }}" class="list-group-item">
+                            <a href="http://mastucco.pythonanywhere.com/home/info/{{ work_order.id }}" class="list-group-item">
                             <!--<a href="#" class="list-group-item">-->
                                 <h4 class="list-group-item-heading">Customer: {{ work_order.customer }}</h4>
                                 <p class="list-group-item-text"><strong>Phase:</strong> {{ work_order.work_phase|extend_work_phase }}</p>
